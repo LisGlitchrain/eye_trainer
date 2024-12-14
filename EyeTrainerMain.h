@@ -52,15 +52,7 @@ public:
     unsigned long deltaTime = millis() - m_PrevTime;
     m_PrevTime = millis();
 
-    // m_LEDRunner.update(deltaTime);
-
-    switch(m_Settings.m_RunMode)
-    {
-      case RunMode::FORWARD:  m_LEDRunner.set(0, HIGH); break;
-      case RunMode::BACKWARD: m_LEDRunner.set(1, HIGH); break;
-      case RunMode::BOTH:     m_LEDRunner.set(2, HIGH); break;
-      case RunMode::RANDOM:   m_LEDRunner.set(3, HIGH); break;
-    }
+    m_LEDRunner.update(deltaTime, m_Settings.SwitchTime, m_Settings.m_RunMode, m_Settings.m_TimeMode);
   }
 
   void runTest()
@@ -105,6 +97,10 @@ private:
     m_DrawTitle = true;
     m_deviceMode = static_cast<DeviceMode>(wrapInt(static_cast<int>(m_deviceMode) + 1, 5)); 
     UpdateModeDisplay();
+    if(m_deviceMode != DeviceMode::RUN)
+    {
+      m_LEDRunner.setRun(false);
+    }
   }
 
   void UpdateModeDisplay()
@@ -173,27 +169,15 @@ private:
     int upDownHoldButtons = GetUpDownButtonsHold();
     if(upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
     {
-      m_LEDRunner.set(0, HIGH);
       m_DrawTitle = false;
       m_Settings.setSwitchTime(m_Settings.SwitchTime + upDownButtons * 50);
-      // m_Settings.setSwitchTime(m_Settings.SwitchTime);
       UpdateModeDisplay();
-    }
-    else
-    {
-      m_LEDRunner.set(0, LOW);
     }
     if(upDownHoldButtons != 0)
     {
-      m_LEDRunner.set(1, HIGH);
       m_DrawTitle = false;
       m_Settings.setSwitchTime(m_Settings.SwitchTime + upDownHoldButtons * 50);
-      // m_Settings.setSwitchTime(m_Settings.SwitchTime);
       UpdateModeDisplay();
-    }
-    else
-    {
-      m_LEDRunner.set(1, LOW);
     }
   }
     

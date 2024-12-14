@@ -22,7 +22,7 @@ enum TimeMode
 {
   CONST = 0,
   MANUAL,
-  INCREASING
+  DECREASING
 };
 
 #endif

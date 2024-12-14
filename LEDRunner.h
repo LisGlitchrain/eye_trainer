@@ -28,20 +28,31 @@ public:
     pinMode(PIN_LED_LATCH, OUTPUT);
   }
 
-  void update(unsigned long _DeltaTime)
+  void nextLED(RunMode _RunMode)
+  {
+    switch(_RunMode)
+    {
+      case RunMode::FORWARD: m_CurrentLED = wrapInt(m_CurrentLED + 1, MAX_LED_INDEX + 1); break;
+      case RunMode::BACKWARD: m_CurrentLED = wrapInt(m_CurrentLED - 1, MAX_LED_INDEX + 1); break;
+      //TODO: ADD PING PONG
+      case RunMode::BOTH: m_CurrentLED = wrapInt(m_CurrentLED - 1, MAX_LED_INDEX + 1); break;
+      case RunMode::RANDOM: m_CurrentLED = random(0, MAX_LED_INDEX + 1); break;
+    }
+  }
+
+  void update(unsigned long _DeltaTime, int _SwitchTime, RunMode _RunMode, TimeMode _TimeMode)
   {
     if(!m_Run)
       return;
 
     m_CurrentTime += _DeltaTime;
-    
-    if((m_CurrentTime / 1000) % 2 != 0)
+
+    if(m_CurrentTime > _SwitchTime)
     {
-      sr.setAllHigh();
-    }
-    else 
-    {
+      m_CurrentTime = 0;
+      nextLED(_RunMode);
       sr.setAllLow();
+      sr.set(m_CurrentLED, HIGH);
     }
   }
 
@@ -180,6 +191,27 @@ public:
     Settings* m_Settings; 
     bool m_Run = false;
     unsigned long m_CurrentTime = 0;
+    int m_CurrentLED = 0;
     ShiftRegister74HC595<REGISTER_SIZE> sr = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
 
+  int wrapInt(int _Num,  int _Max)
+  {
+    if(_Num < 0)
+    {
+      return (_Max - _Num) % _Max;
+    }
+    if(_Num >= _Max)
+    {
+      return _Num % _Max;
+    }
+
+    return _Num;
+  }
+
+  int wrapInt(int _Num, int _Min, int _Max)
+  {
+    int num = _Num - _Min;
+    int max = _Max - _Min;
+    return wrapInt(num, max) + _Min;
+  }
 };
