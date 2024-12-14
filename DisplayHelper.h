@@ -195,13 +195,11 @@ public:
     }
     else if(_Run)
     {  
-      uint8_t forward[4] = {P, L, A, NONE};
-      display.setSegments(forward);
+      display.setSegments((const uint8_t[]) {P, L, A, NONE});
     }
     else
     {
-      uint8_t forward[4] = {P, A, U, S};
-      display.setSegments(forward);
+      display.setSegments((const uint8_t[]) {P, A, U, S});
     }
   }
 

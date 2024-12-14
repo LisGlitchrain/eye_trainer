@@ -35,7 +35,10 @@ public:
       case RunMode::FORWARD: m_CurrentLED = wrapInt(m_CurrentLED + 1, MAX_LED_INDEX + 1); break;
       case RunMode::BACKWARD: m_CurrentLED = wrapInt(m_CurrentLED - 1, MAX_LED_INDEX + 1); break;
       //TODO: ADD PING PONG
-      case RunMode::BOTH: m_CurrentLED = wrapInt(m_CurrentLED - 1, MAX_LED_INDEX + 1); break;
+      case RunMode::BOTH:
+        m_CurrentLEDPingPong  = wrapInt(m_CurrentLEDPingPong + 1, (MAX_LED_INDEX + 1) * 2);
+        m_CurrentLED = pingPong(m_CurrentLEDPingPong, MAX_LED_INDEX + 1); 
+        break;
       case RunMode::RANDOM: m_CurrentLED = random(0, MAX_LED_INDEX + 1); break;
     }
   }
@@ -192,18 +195,39 @@ public:
     bool m_Run = false;
     unsigned long m_CurrentTime = 0;
     int m_CurrentLED = 0;
+    int m_CurrentLEDPingPong = 0;
     ShiftRegister74HC595<REGISTER_SIZE> sr = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
 
   int wrapInt(int _Num,  int _Max)
   {
     if(_Num < 0)
     {
-      return (_Max - _Num) % _Max;
+      return (_Max + _Num % _Max);
     }
     if(_Num >= _Max)
     {
       return _Num % _Max;
     }
+
+    return _Num;
+  }
+
+  //Fix upper bounce (all LEDs are off)
+  int pingPong(int _Num,  int _Max)
+  {
+    if(_Num < 0)
+    {
+      return (_Max + _Num % _Max);
+    }
+    if(_Num > _Max * 2)
+    {
+      return _Num % _Max;
+    }
+    if(_Num > _Max)
+    {
+      return _Max - _Num % _Max;
+    }
+
 
     return _Num;
   }

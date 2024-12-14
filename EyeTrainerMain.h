@@ -71,7 +71,7 @@ private:
   {
     if(_Num < 0)
     {
-      return (_Max - _Num) % _Max;
+      return (_Max + _Num % _Max);
     }
     if(_Num >= _Max)
     {
@@ -133,6 +133,7 @@ private:
     return (upButtonHold - downButtonHold);
   }
 
+  //TODO: FIX BUG HERE: display is not updated.
   void ProcessRun()
   {
     ProcessChangeMode();
