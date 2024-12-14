@@ -4,6 +4,7 @@
 #include <TM1637Display.h>
 #include "Defines.h"
 #include "Settings.h"
+#include "Enums.h"
 
 class DisplayHelper
 {
@@ -18,14 +19,37 @@ public:
     m_Settings = _Settings;
   }
 
+  static const uint8_t NONE = 0;
+  static const uint8_t A = SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
+  static const uint8_t B = SEG_F | SEG_C | SEG_D | SEG_E | SEG_G;
+  static const uint8_t C = SEG_A | SEG_F | SEG_E | SEG_D;
+  static const uint8_t D = SEG_B | SEG_C | SEG_D | SEG_E | SEG_G;
+  static const uint8_t E = SEG_A | SEG_D | SEG_E | SEG_F | SEG_G;
+  static const uint8_t F = SEG_A | SEG_F | SEG_G | SEG_E;
+  static const uint8_t G = SEG_A | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
+  static const uint8_t H = SEG_F | SEG_C | SEG_E | SEG_G;
+  static const uint8_t I = SEG_B | SEG_C;
+  static const uint8_t J = SEG_B | SEG_C | SEG_D;
+  static const uint8_t K = SEG_A;
+  static const uint8_t L = SEG_F | SEG_E | SEG_D;
+  static const uint8_t M = SEG_C | SEG_G | SEG_E;
+  static const uint8_t N = SEG_C | SEG_G | SEG_E;
+  static const uint8_t O = SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
+  static const uint8_t P = SEG_A | SEG_B | SEG_G | SEG_F | SEG_E;
+  static const uint8_t Q = SEG_G;
+  static const uint8_t R = SEG_E | SEG_G;
+  static const uint8_t S = SEG_A | SEG_F | SEG_G | SEG_C | SEG_D;
+  static const uint8_t T = SEG_F | SEG_E | SEG_D | SEG_G;
+  static const uint8_t U = SEG_C | SEG_D | SEG_E;
+  static const uint8_t V = SEG_C | SEG_D | SEG_E | SEG_F | SEG_B;
+  static const uint8_t W = SEG_D;
+  static const uint8_t X = SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
+  static const uint8_t Y = SEG_F | SEG_G | SEG_B | SEG_C;
+  static const uint8_t Z = SEG_A | SEG_B | SEG_G | SEG_E | SEG_D;
+
   void setup()
   {
     display.setBrightness(0x0f);
-  }
-
-  loop()
-  {
-
   }
 
   void buttonsTest()
@@ -160,24 +184,109 @@ public:
     }
   
     // Done!
-    display.setSegments(SEG_DONE);
+    display.setSegments(WORD_DONE);
   }
+
+  void DrawRunInfo(bool _Title, bool _Run)
+  {
+    if(_Title)
+    {
+      display.setSegments(WORD_RUN);
+    }
+    else if(_Run)
+    {  
+      uint8_t forward[4] = {P, L, A, NONE};
+      display.setSegments(forward);
+    }
+    else
+    {
+      uint8_t forward[4] = {P, A, U, S};
+      display.setSegments(forward);
+    }
+  }
+
+  void DrawSettingsRunModeInfo(bool _Title, RunMode _RunMode)
+  {
+    if(_Title)
+    {
+      display.setSegments(WORD_MODE);
+    }
+    else
+    {  
+      switch(_RunMode)
+      {
+        case RunMode::FORWARD:  display.setSegments((const uint8_t[]) {F, W, R, D}); break;
+        case RunMode::BACKWARD: display.setSegments((const uint8_t[]) {B, A, C, K}); break;
+        case RunMode::BOTH:     display.setSegments((const uint8_t[]) {B, O, T, H}); break;
+        case RunMode::RANDOM:   display.setSegments((const uint8_t[]) {R, N, D, NONE}); break;
+      }
+    }
+  }
+    
+  void DrawSettingsTimeInfo(bool _Title, int _SwitchTime)
+  {
+    if(_Title)
+    {
+      display.setSegments(WORD_TIME);
+    }
+    else
+    {
+      display.showNumberDec(_SwitchTime, false);
+    }
+  }
+    
+  void DrawSettingsBrightnessInfo(bool _Title, int _Brightness)
+  {
+    if(_Title)
+    {
+      display.setSegments(WORD_BRIGHTNESS);
+    }
+    else
+    {
+      display.showNumberDec(_Brightness, false);
+    }
+  }
+    
+  void DrawTestInfo(bool _Title)
+  {
+    display.setSegments(WORD_TEST);
+  }
+
+  //DOES NOT WORK!
+  // uint8_t* encodeNumber(uint8_t _Num)
+  // {
+  //   uint8_t data[] = { 0xff, 0xff, 0xff, 0xff };
+  //   // data[3] = display.encodeDigit(_Num % 10);
+  //   // _Num = _Num / 10;
+  //   // data[2] = display.encodeDigit(_Num % 10);
+  //   // _Num = _Num / 10;
+  //   // data[1] = display.encodeDigit(_Num % 10);
+  //   // _Num = _Num / 10;
+  //   // data[0] = display.encodeDigit(_Num % 10);
+
+  //   data[3] = display.encodeDigit(1);
+  //   data[2] = display.encodeDigit(2);
+  //   data[1] = display.encodeDigit(3);
+  //   data[0] = display.encodeDigit(4);
+  //   return data;
+  // }
 
 private:
   TM1637Display display = TM1637Display::TM1637Display(PIN_DISPLAY_CLK, PIN_DISPLAY_DIO);
   Settings* m_Settings;
   int currentTestNum = 0;
 
-  // const uint8_t SEG_DONE[] = {
-  uint8_t SEG_DONE[4] = {
-    SEG_B | SEG_C | SEG_D | SEG_E | SEG_G,           // d
-    SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,   // O
-    SEG_C | SEG_E | SEG_G,                           // n
-    SEG_A | SEG_D | SEG_E | SEG_F | SEG_G            // E
-    };
+  //seg A = upper ground
+  //seg B = upper right
+  //seg C = lower right
 
-  
-
+  uint8_t WORD_DONE[4] =       { D, O, N, E };
+  uint8_t WORD_RUN[4] =        { R, U, N, NONE };
+  uint8_t WORD_MODE[4] =       { M, O, D, E };
+  uint8_t WORD_TIME[4] =       { T, I, M, E };
+  uint8_t WORD_BRIGHTNESS[4] = { B, R, G, H };
+  uint8_t WORD_TEST[4] =       { T, E, S, T };
+  uint8_t WORD_[4] =           { SEG_G, SEG_G, SEG_G, SEG_G };
 };
 
 #endif

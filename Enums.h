@@ -3,25 +3,24 @@
 
 enum DeviceMode
 {
-  IDLE,
+  RUN = 0, 
   SETTINGS_MODE,
   SETTINGS_BRIGHTNESS,
   SETTINGS_TIME,
-  RUN, 
+  TEST
 };
 
 enum RunMode
 {
-  FORWARD,
-  BACKWARD,
-  BOTH,
-  RANDOM,
-  TEST
+  FORWARD = 0,
+  BACKWARD = 1,
+  BOTH = 2,
+  RANDOM = 3
 };
 
 enum TimeMode
 {
-  CONST,
+  CONST = 0,
   MANUAL,
   INCREASING
 };

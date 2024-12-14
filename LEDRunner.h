@@ -28,9 +28,36 @@ public:
     pinMode(PIN_LED_LATCH, OUTPUT);
   }
 
-  void loop()
+  void update(unsigned long _DeltaTime)
   {
+    if(!m_Run)
+      return;
 
+    m_CurrentTime += _DeltaTime;
+    
+    if((m_CurrentTime / 1000) % 2 != 0)
+    {
+      sr.setAllHigh();
+    }
+    else 
+    {
+      sr.setAllLow();
+    }
+  }
+
+  void setRun(bool _Run)
+  {
+    m_Run = _Run;
+  }
+
+  void updateBrightness(float _Brightness)
+  {
+    analogWrite(PIN_LED_GND_BUS, (MAX_BRIGHTNESS - _Brightness) / MAX_BRIGHTNESS * 255);
+  }
+
+  bool getRun()
+  {
+    return m_Run;
   }
 
   void runTest()
@@ -139,8 +166,20 @@ public:
     sr.set(_LedIndex, _Value);
   }
 
+  void setAllHigh()
+  {
+    sr.setAllHigh();
+  }
+
+  void setAllLow()
+  {
+    sr.setAllLow();
+  }
+
   private:
     Settings* m_Settings; 
+    bool m_Run = false;
+    unsigned long m_CurrentTime = 0;
     ShiftRegister74HC595<REGISTER_SIZE> sr = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
 
 };
