@@ -6,18 +6,18 @@
 */
 #include "Defines.h"
 #include <ShiftRegister74HC595.h>
+#include "Settings.h"
 
 class LEDRunner
 {
 public:
-  LEDRunner()
-  {
-  }
+  // LEDRunner()
+  // {
+  // }
 
-  LEDRunner(Settings _Settings)
+  LEDRunner(Settings* _Settings)
   {
-    m_Settings = _Settings;
-
+    this->m_Settings = _Settings;
   }
 
   void setup()
@@ -26,6 +26,11 @@ public:
     pinMode(PIN_LED_DATA, OUTPUT);
     pinMode(PIN_LED_CLOCK, OUTPUT);
     pinMode(PIN_LED_LATCH, OUTPUT);
+  }
+
+  void loop()
+  {
+
   }
 
   void runTest()
@@ -115,8 +120,27 @@ public:
     delay(500);
   }
 
+  void blink(const uint8_t _LedIndex, unsigned long _Time)
+  {
+    sr.setAllLow();
+    sr.set(_LedIndex, HIGH);
+    delay(_Time);
+    sr.setAllLow();
+  }
+
+  void setAndClearOthers(const uint8_t _LedIndex, const uint8_t _Value)
+  {
+    sr.setAllLow();
+    sr.set(_LedIndex, _Value);
+  }
+
+  void set(const uint8_t _LedIndex, const uint8_t _Value)
+  {
+    sr.set(_LedIndex, _Value);
+  }
+
   private:
-    Settings m_Settings; 
+    Settings* m_Settings; 
     ShiftRegister74HC595<REGISTER_SIZE> sr = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
 
 };

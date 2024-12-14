@@ -11,7 +11,5 @@ void setup()
 
 void loop()
 {
-  m_EyeTrainerMain.runTest();
+  m_EyeTrainerMain.loop();
 }
-
-

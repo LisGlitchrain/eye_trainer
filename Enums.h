@@ -7,21 +7,23 @@ enum DeviceMode
   SETTINGS_MODE,
   SETTINGS_BRIGHTNESS,
   SETTINGS_TIME,
-  RUN
+  RUN, 
 };
 
 enum RunMode
 {
-  Forward,
-  Backward,
-  Bothward,
-  Random,
+  FORWARD,
+  BACKWARD,
+  BOTH,
+  RANDOM,
+  TEST
 };
 
 enum TimeMode
 {
-  Const,
-  Manual
+  CONST,
+  MANUAL,
+  INCREASING
 };
 
 #endif

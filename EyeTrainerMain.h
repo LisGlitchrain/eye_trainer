@@ -2,7 +2,7 @@
 #include "DisplayHelper.h"
 #include "Settings.h"
 #include "LEDRunner.h"
-
+#include "InputHelper.h"
 
 class EyeTrainerMain
 {
@@ -13,9 +13,10 @@ public:
 
   DeviceMode m_deviceMode;
 
-  Settings m_Settings;
-  LEDRunner m_LEDRunner;
-  DisplayHelper m_DisplayHelper;
+  Settings m_Settings = Settings();
+  LEDRunner m_LEDRunner = LEDRunner(&m_Settings);
+  DisplayHelper m_DisplayHelper = DisplayHelper(&m_Settings);
+  InputHelper m_InputHelper = InputHelper();
 
   //==============================================================
   //end of state
@@ -26,16 +27,15 @@ public:
   void setup() 
   { 
       pinMode(LED_BUILTIN, OUTPUT);
-      m_Settings = Settings();
-      m_LEDRunner = LEDRunner(m_Settings);
       m_LEDRunner.setup();
-      m_DisplayHelper = DisplayHelper();
       m_DisplayHelper.setup();
+      m_InputHelper.setup();
   }
 
   void loop()
   {
-
+    bool inputEvent = m_InputHelper.readInputs(millis());
+    
   }
 
   void runTest()

@@ -19,4 +19,6 @@
 
 #define REGISTER_SIZE 2
 
+#define LONG_CLICK_TIME_MS 500
+
 #endif

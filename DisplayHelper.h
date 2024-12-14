@@ -1,20 +1,31 @@
+#ifndef EYE_TRAINER_DISPLAYHELPER
+#define EYE_TRAINER_DISPLAYHELPER 0
+
 #include <TM1637Display.h>
 #include "Defines.h"
+#include "Settings.h"
 
 class DisplayHelper
 {
   // The amount of time (in milliseconds) between tests
-  #define TEST_DELAY   250
+  #define TEST_DELAY 250
 
 public:
   DisplayHelper() { }
+  
+  DisplayHelper(Settings* _Settings) 
+  {
+    m_Settings = _Settings;
+  }
 
   void setup()
   {
-    pinMode(PIN_BTN_MAIN, INPUT);  
-    pinMode(PIN_BTN_UP, INPUT);  
-    pinMode(PIN_BTN_DOWN, INPUT);  
     display.setBrightness(0x0f);
+  }
+
+  loop()
+  {
+
   }
 
   void buttonsTest()
@@ -22,7 +33,7 @@ public:
     bool btnMainState = digitalRead(PIN_BTN_MAIN);
     bool btnUpState = digitalRead(PIN_BTN_UP);
     bool btnDownState = digitalRead(PIN_BTN_DOWN);
-    int numChanged = currentNum;
+    int numChanged = currentTestNum;
 
     if(btnMainState == HIGH)
     {
@@ -37,11 +48,11 @@ public:
       numChanged--;
     }
 
-    if(numChanged != currentNum)
+    if(numChanged != currentTestNum)
     {
-      currentNum = numChanged;
+      currentTestNum = numChanged;
       display.clear();
-      display.showNumberDec(currentNum, false);
+      display.showNumberDec(currentTestNum, false);
     }
   }
 
@@ -154,7 +165,8 @@ public:
 
 private:
   TM1637Display display = TM1637Display::TM1637Display(PIN_DISPLAY_CLK, PIN_DISPLAY_DIO);
-  int currentNum = 0;
+  Settings* m_Settings;
+  int currentTestNum = 0;
 
   // const uint8_t SEG_DONE[] = {
   uint8_t SEG_DONE[4] = {
@@ -164,4 +176,8 @@ private:
     SEG_A | SEG_D | SEG_E | SEG_F | SEG_G            // E
     };
 
+  
+
 };
+
+#endif
