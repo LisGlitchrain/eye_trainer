@@ -25,20 +25,6 @@ public:
     pinMode(PIN_LED_LATCH, OUTPUT);
   }
 
-  void nextLED(RunMode _RunMode, int _NextLEDIndexIncrement)
-  {
-    switch(_RunMode)
-    {
-      case RunMode::FORWARD: m_CurrentLED = wrapInt(m_CurrentLED + _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
-      case RunMode::BACKWARD: m_CurrentLED = wrapInt(m_CurrentLED - _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
-      case RunMode::BOTH:
-        m_CurrentLEDPingPong  = wrapInt(m_CurrentLEDPingPong + _NextLEDIndexIncrement, (MAX_LED_INDEX + 1) * 2);
-        m_CurrentLED = pingPong(m_CurrentLEDPingPong, MAX_LED_INDEX + 1); 
-        break;
-      case RunMode::RANDOM: m_CurrentLED = random(0, MAX_LED_INDEX + 1); break;
-    }
-  }
-
   void manualUpdate(RunMode _RunMode, int _NextLEDIndexIncrement)
   {
     nextLED(_RunMode, _NextLEDIndexIncrement);
@@ -67,7 +53,7 @@ public:
     m_Run = _Run;
   }
 
-  void updateBrightness(float _Brightness)
+  void setBrightness(float _Brightness)
   {
     analogWrite(PIN_LED_GND_BUS, (MAX_BRIGHTNESS - _Brightness) / MAX_BRIGHTNESS * 255);
   }
@@ -189,12 +175,26 @@ public:
     m_LEDs.setAllLow();
   }
 
-  private:
-    bool                                m_Run                   = false;
-    unsigned long                       m_CurrentTime           = 0;
-    int                                 m_CurrentLED            = 0;
-    int                                 m_CurrentLEDPingPong    = 0;
-    ShiftRegister74HC595<REGISTER_SIZE> m_LEDs                  = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
+private:
+  bool                                m_Run                   = false;
+  unsigned long                       m_CurrentTime           = 0;
+  int                                 m_CurrentLED            = 0;
+  int                                 m_CurrentLEDPingPong    = 0;
+  ShiftRegister74HC595<REGISTER_SIZE> m_LEDs                  = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
+
+  void nextLED(RunMode _RunMode, int _NextLEDIndexIncrement)
+  {
+    switch(_RunMode)
+    {
+      case RunMode::FORWARD: m_CurrentLED = wrapInt(m_CurrentLED + _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
+      case RunMode::BACKWARD: m_CurrentLED = wrapInt(m_CurrentLED - _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
+      case RunMode::BOTH:
+        m_CurrentLEDPingPong  = wrapInt(m_CurrentLEDPingPong + _NextLEDIndexIncrement, (MAX_LED_INDEX + 1) * 2);
+        m_CurrentLED = pingPong(m_CurrentLEDPingPong, MAX_LED_INDEX + 1); 
+        break;
+      case RunMode::RANDOM: m_CurrentLED = random(0, MAX_LED_INDEX + 1); break;
+    }
+  }
 };
 
 #endif

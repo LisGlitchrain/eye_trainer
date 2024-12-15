@@ -58,37 +58,37 @@ public:
     return m_IsNowHolded | (prevState != m_State);
   }
 
-  bool IsNowClicked()
+  bool isNowClicked()
   {
     return m_IsNowClicked;
   }
 
-  bool IsNowPressed()
+  bool isNowPressed()
   {
     return m_IsNowPressed;
   }
 
-  bool IsNowReleased()
+  bool isNowReleased()
   {
     return m_IsNowReleased;
   }
 
-  bool IsHolded()
+  bool isHolded()
   {
     return m_IsNowHolded;
   }
 
-  bool IsNowLongClicked()
+  bool isNowLongClicked()
   {
     return m_IsNowLongClicked;
   }
 
-  bool IsNowShortClicked()
+  bool isNowShortClicked()
   {
     return m_IsNowShortClicked;
   }
 
-  unsigned long GetPressedTime()
+  unsigned long getPressedTime()
   {
     return m_PressedTime;
   }

@@ -42,10 +42,10 @@ public:
     return m_DownButton;
   }
 
-  int GetUpDownButtonsShortClicked()
+  int getUpDownButtonsShortClicked()
   {
-    bool upButtonShortClicked = m_UpButton.IsNowShortClicked();
-    bool downButtonShortClicked = m_DownButton.IsNowShortClicked();
+    bool upButtonShortClicked = m_UpButton.isNowShortClicked();
+    bool downButtonShortClicked = m_DownButton.isNowShortClicked();
     if(upButtonShortClicked)
       return BTN_UP_SHORT_CLICKED;
     else if(downButtonShortClicked)
@@ -53,10 +53,10 @@ public:
     return BTN_DOWN_UP_NO_SHORT_CLICKED;
   }
 
-  int GetUpDownButtonsHold()
+  int getUpDownButtonsHold()
   {
-    bool upButtonHold   = m_UpButton.IsHolded();
-    bool downButtonHold = m_DownButton.IsHolded();
+    bool upButtonHold   = m_UpButton.isHolded();
+    bool downButtonHold = m_DownButton.isHolded();
     if(upButtonHold)
       return BTN_UP_HOLDED;
     else if(downButtonHold)
