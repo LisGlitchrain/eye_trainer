@@ -20,9 +20,9 @@ public:
   void setup()
   {
     pinMode(PIN_LED_GND_BUS, OUTPUT);
-    pinMode(PIN_LED_DATA, OUTPUT);
-    pinMode(PIN_LED_CLOCK, OUTPUT);
-    pinMode(PIN_LED_LATCH, OUTPUT);
+    pinMode(PIN_LED_SHIFT_REGISTER_DATA, OUTPUT);
+    pinMode(PIN_LED_SHIFT_REGISTER_CLOCK, OUTPUT);
+    pinMode(PIN_LED_SHIFT_REGISTER_LATCH, OUTPUT);
   }
 
   void manualUpdate(RunMode _RunMode, int _NextLEDIndexIncrement)
@@ -180,7 +180,7 @@ private:
   unsigned long                       m_CurrentTime           = 0;
   int                                 m_CurrentLED            = 0;
   int                                 m_CurrentLEDPingPong    = 0;
-  ShiftRegister74HC595<REGISTER_SIZE> m_LEDs                  = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
+  ShiftRegister74HC595<REGISTER_SIZE> m_LEDs                  = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_SHIFT_REGISTER_DATA, PIN_LED_SHIFT_REGISTER_CLOCK, PIN_LED_SHIFT_REGISTER_LATCH);
 
   void nextLED(RunMode _RunMode, int _NextLEDIndexIncrement)
   {
