@@ -1,4 +1,3 @@
-
 #include "EyeTrainerMain.h"
 
 EyeTrainerMain m_EyeTrainerMain;

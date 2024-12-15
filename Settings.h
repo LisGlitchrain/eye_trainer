@@ -7,11 +7,10 @@
 class Settings
 {
 public:
-  enum  RunMode  m_RunMode = RunMode::RANDOM;
-  enum  TimeMode m_TimeMode = TimeMode::CONST;
-  int   SwitchTime = 3000; //In milliseconds
-  // float   Brightness = MAX_BRIGHTNESS;
-  float   Brightness = 195;
+  enum  RunMode  RunModeState  = RunMode::RANDOM;
+  enum  TimeMode TimeModeState = TimeMode::CONST;
+  int            SwitchTime = 3000; //In milliseconds
+  float          Brightness = MAX_BRIGHTNESS / 2;
 
   Settings()
   {
@@ -50,38 +49,23 @@ public:
 
   void resetRunMode(RunMode _RunMode)
   {
-    m_RunMode = RunMode::FORWARD;
+    RunModeState = RunMode::FORWARD;
   }
 
-  void switchRunMode(int _NextOrBack)
+  void switchRunMode(int _ModeIncrement)
   {
-    if(m_RunMode == RunMode::FORWARD)
-    {
-      m_RunMode = RunMode::BACKWARD;
-    }
-    else if(m_RunMode == RunMode::BACKWARD)
-    {
-      m_RunMode = RunMode::BOTH;
-    }
-    else if(m_RunMode == RunMode::BOTH)
-    {
-      m_RunMode = RunMode::RANDOM;
-    }
-    else if(m_RunMode == RunMode::RANDOM)
-    {
-      m_RunMode = RunMode::FORWARD;
-    }
-
-    // RunMode newRunMode = static_cast<RunMode>(wrapInt(static_cast<int>(m_RunMode) + _NextOrBack, 4));
-    // m_RunMode = newRunMode;
+    RunModeState = static_cast<RunMode>(wrapInt(static_cast<int>(RunModeState) + _ModeIncrement, 4));
   }
 
   void setTimeMode(enum TimeMode _TimeMode)
   {
-    m_TimeMode = _TimeMode;
+    TimeModeState = _TimeMode;
   }
 
-
+  void switchTimeMode(int _ModeIncrement)
+  {
+    TimeModeState = static_cast<TimeMode>(wrapInt(static_cast<int>(TimeModeState) + _ModeIncrement, 3));
+  }
 
 private:
   int wrapInt(int _Num,  int _Max)

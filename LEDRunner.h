@@ -1,3 +1,6 @@
+#ifndef EYE_TRAINER_LEDRUNNER
+#define EYE_TRAINER_LEDRUNNER 0
+
 /*
   ShiftRegister74HC595 - Library for simplified control of 74HC595 shift registers.
   Developed and maintained by Timo Denk and contributers, since Nov 2014.
@@ -11,10 +14,6 @@
 class LEDRunner
 {
 public:
-  // LEDRunner()
-  // {
-  // }
-
   LEDRunner(Settings* _Settings)
   {
     this->m_Settings = _Settings;
@@ -28,24 +27,30 @@ public:
     pinMode(PIN_LED_LATCH, OUTPUT);
   }
 
-  void nextLED(RunMode _RunMode)
+  void nextLED(RunMode _RunMode, int _NextLEDIndexIncrement)
   {
     switch(_RunMode)
     {
-      case RunMode::FORWARD: m_CurrentLED = wrapInt(m_CurrentLED + 1, MAX_LED_INDEX + 1); break;
-      case RunMode::BACKWARD: m_CurrentLED = wrapInt(m_CurrentLED - 1, MAX_LED_INDEX + 1); break;
-      //TODO: ADD PING PONG
+      case RunMode::FORWARD: m_CurrentLED = wrapInt(m_CurrentLED + _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
+      case RunMode::BACKWARD: m_CurrentLED = wrapInt(m_CurrentLED - _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
       case RunMode::BOTH:
-        m_CurrentLEDPingPong  = wrapInt(m_CurrentLEDPingPong + 1, (MAX_LED_INDEX + 1) * 2);
+        m_CurrentLEDPingPong  = wrapInt(m_CurrentLEDPingPong + _NextLEDIndexIncrement, (MAX_LED_INDEX + 1) * 2);
         m_CurrentLED = pingPong(m_CurrentLEDPingPong, MAX_LED_INDEX + 1); 
         break;
       case RunMode::RANDOM: m_CurrentLED = random(0, MAX_LED_INDEX + 1); break;
     }
   }
 
+  void manualUpdate(RunMode _RunMode, int _NextLEDIndexIncrement)
+  {
+    nextLED(_RunMode, _NextLEDIndexIncrement);
+    sr.setAllLow();
+    sr.set(m_CurrentLED, HIGH);
+  }
+
   void update(unsigned long _DeltaTime, int _SwitchTime, RunMode _RunMode, TimeMode _TimeMode)
   {
-    if(!m_Run)
+    if(!m_Run || _TimeMode == TimeMode::MANUAL)
       return;
 
     m_CurrentTime += _DeltaTime;
@@ -53,7 +58,7 @@ public:
     if(m_CurrentTime > _SwitchTime)
     {
       m_CurrentTime = 0;
-      nextLED(_RunMode);
+      nextLED(_RunMode, 1);
       sr.setAllLow();
       sr.set(m_CurrentLED, HIGH);
     }
@@ -239,3 +244,5 @@ public:
     return wrapInt(num, max) + _Min;
   }
 };
+
+#endif

@@ -6,7 +6,8 @@ enum DeviceMode
   RUN = 0, 
   SETTINGS_MODE,
   SETTINGS_BRIGHTNESS,
-  SETTINGS_TIME,
+  SETTINGS_TIME_SWITCH,
+  SETTINGS_TIME_MODE,
   TEST
 };
 
@@ -22,7 +23,7 @@ enum TimeMode
 {
   CONST = 0,
   MANUAL,
-  DECREASING
+  DECREASING // not implemented
 };
 
 #endif

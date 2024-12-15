@@ -50,6 +50,7 @@ public:
   void setup()
   {
     display.setBrightness(0x0f);
+    m_DrawTitle = true;
   }
 
   void buttonsTest()
@@ -187,15 +188,15 @@ public:
     display.setSegments(WORD_DONE);
   }
 
-  void DrawRunInfo(bool _Title, bool _Run)
+  void DrawRunInfo(bool _Run)
   {
-    if(_Title)
+    if(m_DrawTitle)
     {
       display.setSegments(WORD_RUN);
     }
     else if(_Run)
     {  
-      display.setSegments((const uint8_t[]) {P, L, A, NONE});
+      display.setSegments((const uint8_t[]) {P, L, A, Y});
     }
     else
     {
@@ -203,9 +204,9 @@ public:
     }
   }
 
-  void DrawSettingsRunModeInfo(bool _Title, RunMode _RunMode)
+  void DrawSettingsRunModeInfo(RunMode _RunMode)
   {
-    if(_Title)
+    if(m_DrawTitle)
     {
       display.setSegments(WORD_MODE);
     }
@@ -213,29 +214,46 @@ public:
     {  
       switch(_RunMode)
       {
-        case RunMode::FORWARD:  display.setSegments((const uint8_t[]) {F, W, R, D}); break;
-        case RunMode::BACKWARD: display.setSegments((const uint8_t[]) {B, A, C, K}); break;
-        case RunMode::BOTH:     display.setSegments((const uint8_t[]) {B, O, T, H}); break;
-        case RunMode::RANDOM:   display.setSegments((const uint8_t[]) {R, N, D, NONE}); break;
+        case RunMode::FORWARD:  display.setSegments((const uint8_t[]) { F, W, R, D    }); break;
+        case RunMode::BACKWARD: display.setSegments((const uint8_t[]) { B, A, C, K    }); break;
+        case RunMode::BOTH:     display.setSegments((const uint8_t[]) { B, O, T, H    }); break;
+        case RunMode::RANDOM:   display.setSegments((const uint8_t[]) { R, N, D, NONE }); break;
       }
     }
   }
     
-  void DrawSettingsTimeInfo(bool _Title, int _SwitchTime)
+  void DrawSettingsTimeSwitchInfo(int _SwitchTime)
   {
-    if(_Title)
+    if(m_DrawTitle)
     {
-      display.setSegments(WORD_TIME);
+      display.setSegments(WORD_TIME_SWITCH);
     }
     else
     {
       display.showNumberDec(_SwitchTime, false);
     }
   }
-    
-  void DrawSettingsBrightnessInfo(bool _Title, int _Brightness)
+      
+  void DrawSettingsTimeModeInfo(TimeMode _TimeMode)
   {
-    if(_Title)
+    if(m_DrawTitle)
+    {
+      display.setSegments(WORD_TIME_MODE);
+    }
+    else
+    {  
+      switch(_TimeMode)
+      {
+        case TimeMode::CONST:       display.setSegments((const uint8_t[]) { C, N, S, T }); break;
+        case TimeMode::MANUAL:      display.setSegments((const uint8_t[]) { M, A, N, L }); break;
+        case TimeMode::DECREASING:  display.setSegments((const uint8_t[]) { D, E, C, R }); break;
+      }
+    }
+  }
+    
+  void DrawSettingsBrightnessInfo(int _Brightness)
+  {
+    if(m_DrawTitle)
     {
       display.setSegments(WORD_BRIGHTNESS);
     }
@@ -245,29 +263,20 @@ public:
     }
   }
     
-  void DrawTestInfo(bool _Title)
+  void DrawTestInfo()
   {
     display.setSegments(WORD_TEST);
   }
 
-  //DOES NOT WORK!
-  // uint8_t* encodeNumber(uint8_t _Num)
-  // {
-  //   uint8_t data[] = { 0xff, 0xff, 0xff, 0xff };
-  //   // data[3] = display.encodeDigit(_Num % 10);
-  //   // _Num = _Num / 10;
-  //   // data[2] = display.encodeDigit(_Num % 10);
-  //   // _Num = _Num / 10;
-  //   // data[1] = display.encodeDigit(_Num % 10);
-  //   // _Num = _Num / 10;
-  //   // data[0] = display.encodeDigit(_Num % 10);
+  void setDrawTitle(bool _Value)
+  {
+    m_DrawTitle = _Value;
+  }
 
-  //   data[3] = display.encodeDigit(1);
-  //   data[2] = display.encodeDigit(2);
-  //   data[1] = display.encodeDigit(3);
-  //   data[0] = display.encodeDigit(4);
-  //   return data;
-  // }
+  void getDrawTitle()
+  {
+    return m_DrawTitle;
+  }
 
 private:
   TM1637Display display = TM1637Display::TM1637Display(PIN_DISPLAY_CLK, PIN_DISPLAY_DIO);
@@ -278,13 +287,16 @@ private:
   //seg B = upper right
   //seg C = lower right
 
-  uint8_t WORD_DONE[4] =       { D, O, N, E };
-  uint8_t WORD_RUN[4] =        { R, U, N, NONE };
-  uint8_t WORD_MODE[4] =       { M, O, D, E };
-  uint8_t WORD_TIME[4] =       { T, I, M, E };
-  uint8_t WORD_BRIGHTNESS[4] = { B, R, G, H };
-  uint8_t WORD_TEST[4] =       { T, E, S, T };
-  uint8_t WORD_[4] =           { SEG_G, SEG_G, SEG_G, SEG_G };
+  uint8_t WORD_DONE[4]        = { D, O, N, E };
+  uint8_t WORD_RUN[4]         = { R, U, N, NONE };
+  uint8_t WORD_MODE[4]        = { R, M, O, D };
+  uint8_t WORD_TIME_SWITCH[4] = { T, I, M, E };
+  uint8_t WORD_TIME_MODE[4]   = { T, M, O, D };
+  uint8_t WORD_BRIGHTNESS[4]  = { B, R, G, H };
+  uint8_t WORD_TEST[4]        = { T, E, S, T };
+  uint8_t WORD_[4]            = { SEG_G, SEG_G, SEG_G, SEG_G };
+
+  bool m_DrawTitle = true;
 };
 
 #endif
