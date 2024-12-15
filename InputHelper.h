@@ -57,7 +57,11 @@ public:
   {
     bool upButtonHold   = m_UpButton.IsHolded();
     bool downButtonHold = m_DownButton.IsHolded();
-    return (upButtonHold - downButtonHold);
+    if(upButtonHold)
+      return BTN_UP_HOLDED;
+    else if(downButtonHold)
+      return BTN_DOWN_HOLDED;
+    return BTN_DOWN_UP_NOT_HOLDED;
   }
 
 private:

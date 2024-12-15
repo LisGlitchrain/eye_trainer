@@ -120,7 +120,7 @@ private:
       Settings::getInstance().setSwitchTime(Settings::getInstance().SwitchTime + upDownButtons * 50);
       UpdateModeDisplay();
     }
-    if(upDownButtonsHold != 0)
+    if(upDownButtonsHold != BTN_DOWN_UP_NOT_HOLDED)
     {
       m_DisplayHelper.setDrawTitle(false);
       Settings::getInstance().setSwitchTime(Settings::getInstance().SwitchTime + upDownButtonsHold * 50);
@@ -139,7 +139,7 @@ private:
       UpdateModeDisplay();
     }
 
-    if(upDownButtonsHold != 0)
+    if(upDownButtonsHold != BTN_DOWN_UP_NOT_HOLDED)
     {
       m_LEDRunner.setAllHigh();
       m_DisplayHelper.setDrawTitle(false);

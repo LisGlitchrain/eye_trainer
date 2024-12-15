@@ -25,4 +25,8 @@
 #define BTN_DOWN_SHORT_CLICKED -1
 #define BTN_DOWN_UP_NO_SHORT_CLICKED 0
 
+#define BTN_UP_HOLDED 1
+#define BTN_DOWN_HOLDED -1
+#define BTN_DOWN_UP_NOT_HOLDED 0
+
 #endif
