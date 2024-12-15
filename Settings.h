@@ -12,9 +12,23 @@ public:
   int            SwitchTime = 3000; //In milliseconds
   float          Brightness = MAX_BRIGHTNESS / 2;
 
-  Settings()
+  //=======================================
+  //Singleton. AVOID COPY ASSIGNMENTS
+  //=======================================
+
+  static Settings& getInstance()
   {
+    static Settings instance; // Guaranteed to be destroyed. Instantiated on first use.
+    return instance;  
   }
+
+  Settings() {}
+  Settings(Settings const&)          = delete;
+  void operator = (Settings const&)  = delete;
+
+  //=======================================
+  //Singleton. AVOID COPY ASSIGNMENTS
+  //=======================================
 
   void setSwitchTime(int _SwitchTime)
   {
@@ -65,6 +79,11 @@ public:
   void switchTimeMode(int _ModeIncrement)
   {
     TimeModeState = static_cast<TimeMode>(wrapInt(static_cast<int>(TimeModeState) + _ModeIncrement, 3));
+  }
+
+  int getDisplaySwitchTime()
+  {
+    return SwitchTime / 10;
   }
 
 private:

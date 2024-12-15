@@ -4,6 +4,7 @@
 #include "LEDRunner.h"
 #include "InputHelper.h"
 #include "Enums.h"
+#include "WrapHelper.h"
 
 class EyeTrainerMain
 {
@@ -25,21 +26,23 @@ public:
     
     if(inputEvent)
     {
+      ProcessChangeMode();
+      int upDownButtonsShortClickState = m_InputHelper.GetUpDownButtonsShortClicked();
+      int upDownButtonsHoldState = m_InputHelper.GetUpDownButtonsHold();
       switch(m_deviceMode)
       {
-        case DeviceMode::RUN:                  ProcessRun();             break;
-        case DeviceMode::SETTINGS_MODE:        ProcessSettingsRunMode(); break;
-        case DeviceMode::SETTINGS_TIME_SWITCH: ProcessSwitchTime();      break;
-        case DeviceMode::SETTINGS_BRIGHTNESS:  ProcessBrightness();      break;
-        case DeviceMode::SETTINGS_TIME_MODE:   ProcessTimeMode();        break;
-        case DeviceMode::TEST:                 ProcessTest();            break;
+        case DeviceMode::RUN:                  ProcessRun(upDownButtonsShortClickState, upDownButtonsHoldState);             break;
+        case DeviceMode::SETTINGS_MODE:        ProcessSettingsRunMode(upDownButtonsShortClickState, upDownButtonsHoldState); break;
+        case DeviceMode::SETTINGS_TIME_SWITCH: ProcessSwitchTime(upDownButtonsShortClickState, upDownButtonsHoldState);      break;
+        case DeviceMode::SETTINGS_BRIGHTNESS:  ProcessBrightness(upDownButtonsShortClickState, upDownButtonsHoldState);      break;
+        case DeviceMode::SETTINGS_TIME_MODE:   ProcessTimeMode(upDownButtonsShortClickState, upDownButtonsHoldState);        break;
+        case DeviceMode::TEST:                 ProcessTest(upDownButtonsShortClickState, upDownButtonsHoldState);            break;
       }
     }
-
-    unsigned long deltaTime = millis() - m_PrevTime;
-    m_PrevTime = millis();
-
-    m_LEDRunner.update(deltaTime, m_Settings.SwitchTime, m_Settings.RunModeState, m_Settings.TimeModeState);
+    unsigned long currentTime = millis();
+    unsigned long deltaTime = currentTime - m_PrevTime;
+    m_PrevTime = currentTime;
+    m_LEDRunner.update(deltaTime);
   }
 
   void runTest()
@@ -49,45 +52,16 @@ public:
   }
 
 private:
-  static const uint8_t BTN_UP_SHORT_CLICKED = 1;
-  static const uint8_t BTN_DOWN_SHORT_CLICKED = -1;
-  static const uint8_t BTN_DOWN_UP_NO_SHORT_CLICKED = 0;
-
-  //==============================================================
-  //state
-  //==============================================================
-
   enum DeviceMode m_deviceMode  = DeviceMode::RUN;
 
-  Settings      m_Settings      = Settings();
-  LEDRunner     m_LEDRunner     = LEDRunner(&m_Settings);
-  DisplayHelper m_DisplayHelper = DisplayHelper(&m_Settings);
+  LEDRunner     m_LEDRunner     = LEDRunner();
+  DisplayHelper m_DisplayHelper = DisplayHelper();
   InputHelper   m_InputHelper   = InputHelper();
   unsigned long m_PrevTime      = 0;
 
-  //==============================================================
-  //end of state
-  //==============================================================
-
-  int wrapInt(int _Num,  int _Max)
+  void UpdateModeDisplay()
   {
-    if(_Num < 0)
-    {
-      return (_Max + _Num % _Max);
-    }
-    if(_Num >= _Max)
-    {
-      return _Num % _Max;
-    }
-
-    return _Num;
-  }
-
-  int wrapInt(int _Num, int _Min, int _Max)
-  {
-    int num = _Num - _Min;
-    int max = _Max - _Min;
-    return wrapInt(num, max) + _Min;
+    m_DisplayHelper.UpdateModeDisplay(m_LEDRunner.getRun(), m_deviceMode);
   }
 
   void ProcessChangeMode()
@@ -105,44 +79,11 @@ private:
     }
   }
 
-  void UpdateModeDisplay()
+  void ProcessRun(int upDownButtons, int upDownButtonsHold)
   {
-    switch(m_deviceMode)
+    if(Settings::getInstance().TimeModeState == TimeMode::MANUAL && upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
     {
-      case DeviceMode::RUN:                   m_DisplayHelper.DrawRunInfo(m_LEDRunner.getRun());                      break;
-      case DeviceMode::SETTINGS_MODE:         m_DisplayHelper.DrawSettingsRunModeInfo(m_Settings.RunModeState);       break;
-      case DeviceMode::SETTINGS_BRIGHTNESS:   m_DisplayHelper.DrawSettingsBrightnessInfo(m_Settings.Brightness);      break;
-      case DeviceMode::SETTINGS_TIME_SWITCH:  m_DisplayHelper.DrawSettingsTimeSwitchInfo(m_Settings.SwitchTime / 10); break;
-      case DeviceMode::SETTINGS_TIME_MODE:    m_DisplayHelper.DrawSettingsTimeModeInfo(m_Settings.TimeModeState);     break;
-      case DeviceMode::TEST:                  m_DisplayHelper.DrawTestInfo();                                         break;
-    }  
-  }
-
-  int GetUpDownButtonsShortClicked()
-  {
-    bool upButtonShortClicked = m_InputHelper.getButtonUp().IsNowShortClicked();
-    bool downButtonShortClicked = m_InputHelper.getButtonDown().IsNowShortClicked();
-    if(upButtonShortClicked)
-      return BTN_UP_SHORT_CLICKED;
-    else if(downButtonShortClicked)
-      return BTN_DOWN_SHORT_CLICKED;
-    return BTN_DOWN_UP_NO_SHORT_CLICKED;
-  }
-
-  int GetUpDownButtonsHold()
-  {
-    bool upButtonHold = m_InputHelper.getButtonUp().IsHolded();
-    bool downButtonHold = m_InputHelper.getButtonDown().IsHolded();
-    return (upButtonHold - downButtonHold);
-  }
-
-  void ProcessRun()
-  {
-    ProcessChangeMode();
-    int upDownButtons = GetUpDownButtonsShortClicked();
-    if(m_Settings.TimeModeState == TimeMode::MANUAL && upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
-    {
-      m_LEDRunner.manualUpdate(m_Settings.RunModeState, upDownButtons);
+      m_LEDRunner.manualUpdate(Settings::getInstance().RunModeState, upDownButtons);
     }
     else
     {
@@ -161,79 +102,65 @@ private:
     }
   }
 
-  void ProcessSettingsRunMode()
+  void ProcessSettingsRunMode(int upDownButtons, int upDownButtonsHold)
   {
-    ProcessChangeMode();
-    int upDownButtons = GetUpDownButtonsShortClicked();
     if(upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
     {
       m_DisplayHelper.setDrawTitle(false);
-      m_Settings.switchRunMode(upDownButtons);
+      Settings::getInstance().switchRunMode(upDownButtons);
       UpdateModeDisplay();
     }
   }
     
-  void ProcessSwitchTime()
+  void ProcessSwitchTime(int upDownButtons, int upDownButtonsHold)
   {
-    ProcessChangeMode();
-
-    int upDownButtons = GetUpDownButtonsShortClicked();
-    int upDownHoldButtons = GetUpDownButtonsHold();
     if(upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
     {
       m_DisplayHelper.setDrawTitle(false);
-      m_Settings.setSwitchTime(m_Settings.SwitchTime + upDownButtons * 50);
+      Settings::getInstance().setSwitchTime(Settings::getInstance().SwitchTime + upDownButtons * 50);
       UpdateModeDisplay();
     }
-    if(upDownHoldButtons != 0)
+    if(upDownButtonsHold != 0)
     {
       m_DisplayHelper.setDrawTitle(false);
-      m_Settings.setSwitchTime(m_Settings.SwitchTime + upDownHoldButtons * 50);
+      Settings::getInstance().setSwitchTime(Settings::getInstance().SwitchTime + upDownButtonsHold * 50);
       UpdateModeDisplay();
     }
   }
     
-  void ProcessBrightness()
+  void ProcessBrightness(int upDownButtons, int upDownButtonsHold)
   {
-    ProcessChangeMode();
-
-    int upDownButtons = GetUpDownButtonsShortClicked();
-    int upDownHoldButtons = GetUpDownButtonsHold();
     if(upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
     {
       m_LEDRunner.setAllHigh();
       m_DisplayHelper.setDrawTitle(false);
-      m_Settings.setBrightness(m_Settings.Brightness + upDownButtons);
-      m_LEDRunner.updateBrightness(m_Settings.Brightness);
+      Settings::getInstance().setBrightness(Settings::getInstance().Brightness + upDownButtons);
+      m_LEDRunner.updateBrightness(Settings::getInstance().Brightness);
       UpdateModeDisplay();
     }
 
-    if(upDownHoldButtons != 0)
+    if(upDownButtonsHold != 0)
     {
       m_LEDRunner.setAllHigh();
       m_DisplayHelper.setDrawTitle(false);
-      m_Settings.setBrightness(m_Settings.Brightness + upDownHoldButtons);
-      m_LEDRunner.updateBrightness(m_Settings.Brightness);
+      Settings::getInstance().setBrightness(Settings::getInstance().Brightness + upDownButtonsHold);
+      m_LEDRunner.updateBrightness(Settings::getInstance().Brightness);
       UpdateModeDisplay();
     }
   }
 
-  void ProcessTimeMode()
+  void ProcessTimeMode(int upDownButtons, int upDownButtonsHold)
   {
-    ProcessChangeMode();
-    int upDownButtons = GetUpDownButtonsShortClicked();
     if(upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
     {
       m_DisplayHelper.setDrawTitle(false);
-      m_Settings.switchTimeMode(upDownButtons);
+      Settings::getInstance().switchTimeMode(upDownButtons);
       UpdateModeDisplay();
     }
   }
 
-  void ProcessTest()
+  void ProcessTest(int upDownButtons, int upDownButtonsHold)
   {
-    ProcessChangeMode();
-    int upDownButtons = GetUpDownButtonsShortClicked();
     if(upDownButtons != BTN_DOWN_UP_NO_SHORT_CLICKED)
     {
       runTest();

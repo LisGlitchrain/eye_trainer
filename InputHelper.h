@@ -42,11 +42,29 @@ public:
     return m_DownButton;
   }
 
+  int GetUpDownButtonsShortClicked()
+  {
+    bool upButtonShortClicked = m_UpButton.IsNowShortClicked();
+    bool downButtonShortClicked = m_DownButton.IsNowShortClicked();
+    if(upButtonShortClicked)
+      return BTN_UP_SHORT_CLICKED;
+    else if(downButtonShortClicked)
+      return BTN_DOWN_SHORT_CLICKED;
+    return BTN_DOWN_UP_NO_SHORT_CLICKED;
+  }
+
+  int GetUpDownButtonsHold()
+  {
+    bool upButtonHold   = m_UpButton.IsHolded();
+    bool downButtonHold = m_DownButton.IsHolded();
+    return (upButtonHold - downButtonHold);
+  }
+
 private:
   bool m_InputEvent;
   
   SimpleButton m_MainButton = SimpleButton(PIN_BTN_MAIN, LONG_CLICK_TIME_MS);
-  SimpleButton m_UpButton = SimpleButton(PIN_BTN_UP, LONG_CLICK_TIME_MS);
+  SimpleButton m_UpButton   = SimpleButton(PIN_BTN_UP, LONG_CLICK_TIME_MS);
   SimpleButton m_DownButton = SimpleButton(PIN_BTN_DOWN, LONG_CLICK_TIME_MS);
 };
 

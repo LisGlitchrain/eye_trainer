@@ -10,14 +10,12 @@
 #include "Defines.h"
 #include <ShiftRegister74HC595.h>
 #include "Settings.h"
+#include "WrapHelper.h"
 
 class LEDRunner
 {
 public:
-  LEDRunner(Settings* _Settings)
-  {
-    this->m_Settings = _Settings;
-  }
+  LEDRunner() { }
 
   void setup()
   {
@@ -44,23 +42,23 @@ public:
   void manualUpdate(RunMode _RunMode, int _NextLEDIndexIncrement)
   {
     nextLED(_RunMode, _NextLEDIndexIncrement);
-    sr.setAllLow();
-    sr.set(m_CurrentLED, HIGH);
+    m_LEDs.setAllLow();
+    m_LEDs.set(m_CurrentLED, HIGH);
   }
 
-  void update(unsigned long _DeltaTime, int _SwitchTime, RunMode _RunMode, TimeMode _TimeMode)
+  void update(unsigned long _DeltaTime)
   {
-    if(!m_Run || _TimeMode == TimeMode::MANUAL)
+    if(!m_Run || Settings::getInstance().TimeModeState == TimeMode::MANUAL)
       return;
 
     m_CurrentTime += _DeltaTime;
 
-    if(m_CurrentTime > _SwitchTime)
+    if(m_CurrentTime > Settings::getInstance().SwitchTime)
     {
       m_CurrentTime = 0;
-      nextLED(_RunMode, 1);
-      sr.setAllLow();
-      sr.set(m_CurrentLED, HIGH);
+      nextLED(Settings::getInstance().RunModeState, 1);
+      m_LEDs.setAllLow();
+      m_LEDs.set(m_CurrentLED, HIGH);
     }
   }
 
@@ -81,10 +79,6 @@ public:
 
   void runTest()
   {
-    // // setting all pins at the same time to either HIGH or LOW
-    // sr.setAllHigh(); // set all pins HIGH
-    // delay(500);
-
     analogWrite(PIN_LED_GND_BUS, 120);
 
     for(int i = 0; i < 4; i++)
@@ -95,13 +89,13 @@ public:
       delay(250);                       // wait for a second
     }
 
-    sr.setAllHigh();
+    m_LEDs.setAllHigh();
     delay(500); 
-    sr.setAllLow();
+    m_LEDs.setAllLow();
     delay(500); 
-    sr.setAllHigh();
+    m_LEDs.setAllHigh();
     delay(500); 
-    sr.setAllLow();
+    m_LEDs.setAllLow();
     delay(500); 
 
     for(int i = 0; i < 4; i++)
@@ -117,29 +111,29 @@ public:
       // setting single pins
       for (int i = 0; i < MAX_LED_INDEX; i++) 
       {
-        sr.set(i, HIGH);
+        m_LEDs.set(i, HIGH);
         delay(25); 
-        sr.set(i, LOW); 
+        m_LEDs.set(i, LOW); 
       }
-          // setting single pins
+      // setting single pins
       for (int i = MAX_LED_INDEX; i > 0; i--) 
       {
-        sr.set(i, HIGH);
+        m_LEDs.set(i, HIGH);
         delay(25); 
-        sr.set(i, LOW); 
+        m_LEDs.set(i, LOW); 
       }
     }
 
-    sr.set(0, HIGH);
+    m_LEDs.set(0, HIGH);
     delay(50); 
     
     for (int i = 0; i < MAX_LED_INDEX / 2; i++) 
     {
-      sr.set(i, HIGH);
-      sr.set(MAX_LED_INDEX - i, HIGH);
+      m_LEDs.set(i, HIGH);
+      m_LEDs.set(MAX_LED_INDEX - i, HIGH);
       delay(150); 
-      sr.set(i, LOW);
-      sr.set(MAX_LED_INDEX - i, LOW);
+      m_LEDs.set(i, LOW);
+      m_LEDs.set(MAX_LED_INDEX - i, LOW);
     }
 
 
@@ -147,15 +141,15 @@ public:
     {
       for (int i = MAX_LED_INDEX / 2; i >= 0; i--) 
       {
-        sr.set(i, HIGH);
-        sr.set(MAX_LED_INDEX - i, HIGH); 
+        m_LEDs.set(i, HIGH);
+        m_LEDs.set(MAX_LED_INDEX - i, HIGH); 
         delay(50); 
-        sr.set(i, LOW);
-        sr.set(MAX_LED_INDEX - i, LOW); 
+        m_LEDs.set(i, LOW);
+        m_LEDs.set(MAX_LED_INDEX - i, LOW); 
       }
     }
     
-    sr.setAllHigh(); // set all pins HIGH
+    m_LEDs.setAllHigh(); // set all pins HIGH
 
     for(int i = 10; i > 0; i--)
     {
@@ -168,81 +162,39 @@ public:
 
   void blink(const uint8_t _LedIndex, unsigned long _Time)
   {
-    sr.setAllLow();
-    sr.set(_LedIndex, HIGH);
+    m_LEDs.setAllLow();
+    m_LEDs.set(_LedIndex, HIGH);
     delay(_Time);
-    sr.setAllLow();
+    m_LEDs.setAllLow();
   }
 
   void setAndClearOthers(const uint8_t _LedIndex, const uint8_t _Value)
   {
-    sr.setAllLow();
-    sr.set(_LedIndex, _Value);
+    m_LEDs.setAllLow();
+    m_LEDs.set(_LedIndex, _Value);
   }
 
   void set(const uint8_t _LedIndex, const uint8_t _Value)
   {
-    sr.set(_LedIndex, _Value);
+    m_LEDs.set(_LedIndex, _Value);
   }
 
   void setAllHigh()
   {
-    sr.setAllHigh();
+    m_LEDs.setAllHigh();
   }
 
   void setAllLow()
   {
-    sr.setAllLow();
+    m_LEDs.setAllLow();
   }
 
   private:
-    Settings* m_Settings; 
-    bool m_Run = false;
-    unsigned long m_CurrentTime = 0;
-    int m_CurrentLED = 0;
-    int m_CurrentLEDPingPong = 0;
-    ShiftRegister74HC595<REGISTER_SIZE> sr = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
-
-  int wrapInt(int _Num,  int _Max)
-  {
-    if(_Num < 0)
-    {
-      return (_Max + _Num % _Max);
-    }
-    if(_Num >= _Max)
-    {
-      return _Num % _Max;
-    }
-
-    return _Num;
-  }
-
-  //Fix upper bounce (all LEDs are off)
-  int pingPong(int _Num,  int _Max)
-  {
-    if(_Num < 0)
-    {
-      return (_Max + _Num % _Max);
-    }
-    if(_Num > _Max * 2)
-    {
-      return _Num % _Max;
-    }
-    if(_Num > _Max)
-    {
-      return _Max - _Num % _Max;
-    }
-
-
-    return _Num;
-  }
-
-  int wrapInt(int _Num, int _Min, int _Max)
-  {
-    int num = _Num - _Min;
-    int max = _Max - _Min;
-    return wrapInt(num, max) + _Min;
-  }
+    bool                                m_Run                   = false;
+    unsigned long                       m_CurrentTime           = 0;
+    int                                 m_CurrentLED            = 0;
+    int                                 m_CurrentLEDPingPong    = 0;
+    ShiftRegister74HC595<REGISTER_SIZE> m_LEDs                  = ShiftRegister74HC595<REGISTER_SIZE>::ShiftRegister74HC595(PIN_LED_DATA, PIN_LED_CLOCK, PIN_LED_LATCH);
 };
 
 #endif

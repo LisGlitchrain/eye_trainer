@@ -5,6 +5,7 @@
 #include "Defines.h"
 #include "Settings.h"
 #include "Enums.h"
+#include "DisplayDefines.h"
 
 class DisplayHelper
 {
@@ -13,72 +14,11 @@ class DisplayHelper
 
 public:
   DisplayHelper() { }
-  
-  DisplayHelper(Settings* _Settings) 
-  {
-    m_Settings = _Settings;
-  }
-
-  static const uint8_t NONE = 0;
-  static const uint8_t A = SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
-  static const uint8_t B = SEG_F | SEG_C | SEG_D | SEG_E | SEG_G;
-  static const uint8_t C = SEG_A | SEG_F | SEG_E | SEG_D;
-  static const uint8_t D = SEG_B | SEG_C | SEG_D | SEG_E | SEG_G;
-  static const uint8_t E = SEG_A | SEG_D | SEG_E | SEG_F | SEG_G;
-  static const uint8_t F = SEG_A | SEG_F | SEG_G | SEG_E;
-  static const uint8_t G = SEG_A | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
-  static const uint8_t H = SEG_F | SEG_C | SEG_E | SEG_G;
-  static const uint8_t I = SEG_B | SEG_C;
-  static const uint8_t J = SEG_B | SEG_C | SEG_D;
-  static const uint8_t K = SEG_A;
-  static const uint8_t L = SEG_F | SEG_E | SEG_D;
-  static const uint8_t M = SEG_C | SEG_G | SEG_E;
-  static const uint8_t N = SEG_C | SEG_G | SEG_E;
-  static const uint8_t O = SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
-  static const uint8_t P = SEG_A | SEG_B | SEG_G | SEG_F | SEG_E;
-  static const uint8_t Q = SEG_G;
-  static const uint8_t R = SEG_E | SEG_G;
-  static const uint8_t S = SEG_A | SEG_F | SEG_G | SEG_C | SEG_D;
-  static const uint8_t T = SEG_F | SEG_E | SEG_D | SEG_G;
-  static const uint8_t U = SEG_C | SEG_D | SEG_E;
-  static const uint8_t V = SEG_C | SEG_D | SEG_E | SEG_F | SEG_B;
-  static const uint8_t W = SEG_D;
-  static const uint8_t X = SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
-  static const uint8_t Y = SEG_F | SEG_G | SEG_B | SEG_C;
-  static const uint8_t Z = SEG_A | SEG_B | SEG_G | SEG_E | SEG_D;
 
   void setup()
   {
     display.setBrightness(0x0f);
     m_DrawTitle = true;
-  }
-
-  void buttonsTest()
-  {
-    bool btnMainState = digitalRead(PIN_BTN_MAIN);
-    bool btnUpState = digitalRead(PIN_BTN_UP);
-    bool btnDownState = digitalRead(PIN_BTN_DOWN);
-    int numChanged = currentTestNum;
-
-    if(btnMainState == HIGH)
-    {
-      numChanged = 0;
-    }
-    else if (btnUpState == HIGH)
-    {
-      numChanged++;
-    }
-    else if (btnDownState == HIGH)
-    {
-      numChanged--;
-    }
-
-    if(numChanged != currentTestNum)
-    {
-      currentTestNum = numChanged;
-      display.clear();
-      display.showNumberDec(currentTestNum, false);
-    }
   }
 
   void runTest()
@@ -188,6 +128,19 @@ public:
     display.setSegments(WORD_DONE);
   }
 
+  void UpdateModeDisplay(bool _RunnerActive, DeviceMode _DeviceMode)
+  {
+    switch(_DeviceMode)
+    {
+      case DeviceMode::RUN:                   DrawRunInfo(_RunnerActive);   break;
+      case DeviceMode::SETTINGS_MODE:         DrawSettingsRunModeInfo();    break;
+      case DeviceMode::SETTINGS_BRIGHTNESS:   DrawSettingsBrightnessInfo(); break;
+      case DeviceMode::SETTINGS_TIME_SWITCH:  DrawSettingsTimeSwitchInfo(); break;
+      case DeviceMode::SETTINGS_TIME_MODE:    DrawSettingsTimeModeInfo();   break;
+      case DeviceMode::TEST:                  DrawTestInfo();               break;
+    }  
+  }
+
   void DrawRunInfo(bool _Run)
   {
     if(m_DrawTitle)
@@ -196,15 +149,15 @@ public:
     }
     else if(_Run)
     {  
-      display.setSegments((const uint8_t[]) {P, L, A, Y});
+      display.setSegments(WORD(P, L, A, Y));
     }
     else
     {
-      display.setSegments((const uint8_t[]) {P, A, U, S});
+      display.setSegments(WORD(P, A, U, S));
     }
   }
 
-  void DrawSettingsRunModeInfo(RunMode _RunMode)
+  void DrawSettingsRunModeInfo()
   {
     if(m_DrawTitle)
     {
@@ -212,17 +165,17 @@ public:
     }
     else
     {  
-      switch(_RunMode)
+      switch(Settings::getInstance().RunModeState)
       {
-        case RunMode::FORWARD:  display.setSegments((const uint8_t[]) { F, W, R, D    }); break;
-        case RunMode::BACKWARD: display.setSegments((const uint8_t[]) { B, A, C, K    }); break;
-        case RunMode::BOTH:     display.setSegments((const uint8_t[]) { B, O, T, H    }); break;
-        case RunMode::RANDOM:   display.setSegments((const uint8_t[]) { R, N, D, NONE }); break;
+        case RunMode::FORWARD:  display.setSegments(WORD(F, W, R, D   )); break;
+        case RunMode::BACKWARD: display.setSegments(WORD(B, A, C, K   )); break;
+        case RunMode::BOTH:     display.setSegments(WORD(B, O, T, H   )); break;
+        case RunMode::RANDOM:   display.setSegments(WORD(R, N, D, NONE)); break;
       }
     }
   }
     
-  void DrawSettingsTimeSwitchInfo(int _SwitchTime)
+  void DrawSettingsTimeSwitchInfo()
   {
     if(m_DrawTitle)
     {
@@ -230,11 +183,11 @@ public:
     }
     else
     {
-      display.showNumberDec(_SwitchTime, false);
+      display.showNumberDec(Settings::getInstance().getDisplaySwitchTime(), false);
     }
   }
       
-  void DrawSettingsTimeModeInfo(TimeMode _TimeMode)
+  void DrawSettingsTimeModeInfo()
   {
     if(m_DrawTitle)
     {
@@ -242,16 +195,16 @@ public:
     }
     else
     {  
-      switch(_TimeMode)
+      switch(Settings::getInstance().TimeModeState)
       {
-        case TimeMode::CONST:       display.setSegments((const uint8_t[]) { C, N, S, T }); break;
-        case TimeMode::MANUAL:      display.setSegments((const uint8_t[]) { M, A, N, L }); break;
-        case TimeMode::DECREASING:  display.setSegments((const uint8_t[]) { D, E, C, R }); break;
+        case TimeMode::CONST:       display.setSegments(WORD(C, N, S, T )); break;
+        case TimeMode::MANUAL:      display.setSegments(WORD(M, A, N, L )); break;
+        case TimeMode::DECREASING:  display.setSegments(WORD(D, E, C, R )); break;
       }
     }
   }
     
-  void DrawSettingsBrightnessInfo(int _Brightness)
+  void DrawSettingsBrightnessInfo()
   {
     if(m_DrawTitle)
     {
@@ -259,7 +212,7 @@ public:
     }
     else
     {
-      display.showNumberDec(_Brightness, false);
+      display.showNumberDec(Settings::getInstance().Brightness, false);
     }
   }
     
@@ -280,22 +233,7 @@ public:
 
 private:
   TM1637Display display = TM1637Display::TM1637Display(PIN_DISPLAY_CLK, PIN_DISPLAY_DIO);
-  Settings* m_Settings;
   int currentTestNum = 0;
-
-  //seg A = upper ground
-  //seg B = upper right
-  //seg C = lower right
-
-  uint8_t WORD_DONE[4]        = { D, O, N, E };
-  uint8_t WORD_RUN[4]         = { R, U, N, NONE };
-  uint8_t WORD_MODE[4]        = { R, M, O, D };
-  uint8_t WORD_TIME_SWITCH[4] = { T, I, M, E };
-  uint8_t WORD_TIME_MODE[4]   = { T, M, O, D };
-  uint8_t WORD_BRIGHTNESS[4]  = { B, R, G, H };
-  uint8_t WORD_TEST[4]        = { T, E, S, T };
-  uint8_t WORD_[4]            = { SEG_G, SEG_G, SEG_G, SEG_G };
-
   bool m_DrawTitle = true;
 };
 
