@@ -39,7 +39,8 @@ public:
 
     m_CurrentTime += _DeltaTime;
 
-    if(m_CurrentTime > Settings::getInstance().SwitchTime)
+    //Settings::getInstance().SwitchTime
+    if(m_CurrentTime > Settings::getInstance().getDistanceCorrectedSwitchTime(m_CurrentLED))
     {
       m_CurrentTime = 0;
       nextLED(Settings::getInstance().RunModeState, 1);
@@ -176,7 +177,7 @@ public:
   }
 
 private:
-  bool                                m_Run                   = false;
+  bool                                m_Run                   = true;
   unsigned long                       m_CurrentTime           = 0;
   int                                 m_CurrentLED            = 0;
   int                                 m_CurrentLEDPingPong    = 0;
@@ -188,9 +189,9 @@ private:
     {
       case RunMode::FORWARD: m_CurrentLED = wrapInt(m_CurrentLED + _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
       case RunMode::BACKWARD: m_CurrentLED = wrapInt(m_CurrentLED - _NextLEDIndexIncrement, MAX_LED_INDEX + 1); break;
-      case RunMode::BOTH:
-        m_CurrentLEDPingPong  = wrapInt(m_CurrentLEDPingPong + _NextLEDIndexIncrement, (MAX_LED_INDEX + 1) * 2);
-        m_CurrentLED = pingPong(m_CurrentLEDPingPong, MAX_LED_INDEX + 1); 
+      case RunMode::PING_PONG:
+        m_CurrentLEDPingPong  = wrapInt(m_CurrentLEDPingPong + _NextLEDIndexIncrement, MAX_LED_INDEX * 2);
+        m_CurrentLED = pingPong(m_CurrentLEDPingPong, MAX_LED_INDEX); 
         break;
       case RunMode::RANDOM: m_CurrentLED = random(0, MAX_LED_INDEX + 1); break;
     }

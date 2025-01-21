@@ -167,10 +167,10 @@ public:
     {  
       switch(Settings::getInstance().RunModeState)
       {
-        case RunMode::FORWARD:  display.setSegments(WORD(F, R, W, D   )); break;
-        case RunMode::BACKWARD: display.setSegments(WORD(B, A, C, D   )); break;
-        case RunMode::BOTH:     display.setSegments(WORD(P, I, N, G   )); break;
-        case RunMode::RANDOM:   display.setSegments(WORD(R, N, D, NONE)); break;
+        case RunMode::FORWARD:   display.setSegments(WORD(F, R, W, D   )); break;
+        case RunMode::BACKWARD:  display.setSegments(WORD(B, A, C, D   )); break;
+        case RunMode::PING_PONG: display.setSegments(WORD(P, I, N, G   )); break;
+        case RunMode::RANDOM:    display.setSegments(WORD(R, N, D, NONE)); break;
       }
     }
   }

@@ -15,23 +15,23 @@ int wrapInt(int _Num,  int _Max)
     return _Num;
 }
 
-//Fix upper bounce (all LEDs are off)
-int pingPong(int _Num,  int _Max)
+int pingPong(int _Num,  int _MaxHalfIndex)
 {
-    if(_Num < 0)
-    {
-        return (_Max + _Num % _Max);
-    }
-    if(_Num > _Max * 2)
-    {
-        return _Num % _Max;
-    }
-    if(_Num > _Max)
-    {
-        return _Max - _Num % _Max;
-    }
+  const int maxHalfCount = _MaxHalfIndex + 1;
+  const int maxFullIndex = _MaxHalfIndex * 2;
+  const int maxFullCount = (_MaxHalfIndex + 1) * 2;
+  int numInRange = _Num < 0 
+  ? _Num % maxFullCount == 0 
+    ? 0 
+    : _Num % maxFullCount + maxFullCount 
+  : _Num % maxFullCount;
 
-    return _Num;
+  if(numInRange > _MaxHalfIndex)
+  {
+      return maxFullIndex - numInRange;
+  }
+
+  return numInRange;
 }
 
 int wrapInt(int _Num, int _Min, int _Max)

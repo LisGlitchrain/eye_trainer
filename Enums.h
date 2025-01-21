@@ -15,7 +15,7 @@ enum RunMode
 {
   FORWARD = 0,
   BACKWARD = 1,
-  BOTH = 2,
+  PING_PONG = 2,
   RANDOM = 3
 };
 

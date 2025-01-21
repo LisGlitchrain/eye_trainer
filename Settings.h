@@ -7,10 +7,11 @@
 class Settings
 {
 public:
-  enum  RunMode  RunModeState  = RunMode::RANDOM;
+  enum  RunMode  RunModeState  = RunMode::PING_PONG;
   enum  TimeMode TimeModeState = TimeMode::CONST;
-  int            SwitchTime = 3000; //In milliseconds
+  int            SwitchTime = DEFAULT_SWITCH_TIME; //In milliseconds
   float          Brightness = MAX_BRIGHTNESS / 2;
+  float          LED_DISTANCE_ARRAY;
 
   //=======================================
   //Singleton. AVOID COPY ASSIGNMENTS
@@ -32,14 +33,14 @@ public:
 
   void setSwitchTime(int _SwitchTime)
   {
-    if(_SwitchTime > 15000)
+    if(_SwitchTime > MAX_SWITCH_TIME)
     {
-      SwitchTime = 15000;
+      SwitchTime = MAX_SWITCH_TIME;
       return;
     }
-    if(_SwitchTime < 250)
+    if(_SwitchTime < MIN_SWITCH_TIME)
     {
-      SwitchTime = 250;
+      SwitchTime = MIN_SWITCH_TIME;
       return;
     }
 
@@ -84,6 +85,11 @@ public:
   int getDisplaySwitchTime()
   {
     return SwitchTime / 10;
+  }
+
+  int getDistanceCorrectedSwitchTime(int _LedIndex)
+  {
+    return (int) (min(max(SwitchTime * LedDistances[_LedIndex], MIN_SWITCH_TIME), MAX_SWITCH_TIME));
   }
 
 private:
